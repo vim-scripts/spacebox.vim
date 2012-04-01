@@ -1,0 +1,8 @@
+This is a mirror of http://www.vim.org/scripts/script.php?script_id=3997
+
+Spacebox is a simple Vim plugin which allows you to select a Visual block of indentation whitespace based on the indentation of the current line.
+
+The plugin provides the single command ":SpaceBox" for that matter.
+
+See the included documentation for an illustration and more details.
+
