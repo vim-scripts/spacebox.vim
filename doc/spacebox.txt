@@ -24,6 +24,9 @@ As the example shows, blank lines (and their indentation whitespace) are
 included in the selection.  On the other hand, blank lines at the upper and
 lower boundaries of the block are not included.
 
+On a line with no indentation the behaviour of the command changes: There it
+will select adjacent unindented lines (useful eg. for selecting heredoc text).
+
 USAGE							*:SpaceBox*
 
 The spacebox plugin provides a single command which selects a block of
