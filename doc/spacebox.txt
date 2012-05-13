@@ -37,6 +37,6 @@ indentation whitespace in blockwise Visual mode as explained above. >
 For ease of use, you might want to put a line similar to the following in your
 |vimrc|.  Then just hit "\w" to trigger |:SpaceBox|. >
 
-    nmap <Leader>w :SpaceBox<CR>
+    nnoremap <Leader>w :SpaceBox<CR>
 <
  vim:tw=78:ts=8:ft=help:norl:

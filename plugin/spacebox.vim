@@ -2,7 +2,7 @@
 " the indentation of the current line.  Try it with ":SpaceBox"!
 "
 " Author: glts <676c7473@gmail.com>
-" Date: 2012-05-12
+" Date: 2012-05-13
 
 function! s:is_blank(line)
   return match(getline(a:line), '^\s*$') != -1
@@ -64,9 +64,9 @@ function! s:visual_box(top, bottom, width)
   call cursor(a:top, 1)
   let l:linespan = a:bottom - a:top
   if l:linespan == 0
-    exec "normal \<C-V>" . a:width . "|"
+    exec "normal! \<C-V>" . a:width . "|"
   else
-    exec "normal \<C-V>" . l:linespan . "j" . a:width . "|"
+    exec "normal! \<C-V>" . l:linespan . "j" . a:width . "|"
   endif
 endfunction
 
