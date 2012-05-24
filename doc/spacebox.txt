@@ -21,16 +21,16 @@ the middots. >
     }
 
 As the example shows, blank lines (and their indentation whitespace) are
-included in the selection.  On the other hand, blank lines at the upper and
-lower boundaries of the block are not included.
+included in the selection by default.  On the other hand, blank lines at the
+upper and lower boundaries of the block are not included.
 
-On a line with no indentation the behaviour of the command changes: There it
-will select adjacent unindented lines (useful eg. for selecting heredoc text).
+On a line with no indentation the behaviour of the command changes:  There it
+will select adjacent unindented lines.
 
 USAGE							*:SpaceBox*
 
-The spacebox plugin provides a single command which selects a block of
-indentation whitespace in blockwise Visual mode as explained above. >
+The spacebox plugin provides a single command to do the selection in blockwise
+Visual mode as explained above. >
 
     :SpaceBox
 
@@ -38,5 +38,32 @@ For ease of use, you might want to put a line similar to the following in your
 |vimrc|.  Then just hit "\w" to trigger |:SpaceBox|. >
 
     nnoremap <Leader>w :SpaceBox<CR>
-<
+
+Some uses I have found for the plugin are "\w>" and "\w<" to fix indentation,
+and "\wV" on an unindented line to select stretches of here-documents.
+
+Note that Spacebox may seem to do the wrong thing on input with less sane
+whitespace conventions, for example the Vim help files where spaces and tabs
+are freely mixed.  This is due to the fact that Vim cannot by default only
+select part of a tab in blockwise Visual mode.  You can work around this by
+temporarily setting 'virtualedit' to "all".
+
+CONFIGURATION						*spacebox-config*
+
+Two global variables control whether or not Spacebox skips over blank lines.
+
+					*g:spacebox_skip_blank_lines*
+    g:spacebox_skip_blank_lines ~
+    Skip blank lines.
+    Default is 1.
+
+					*g:spacebox_skip_blank_lines_noindent*
+    g:spacebox_skip_blank_lines_noindent ~
+    Skip blank lines when running |:SpaceBox| on an unindented line.
+    Default is 0.
+
+To change the default settings, set these variables to "1" or "0" in your
+|vimrc|.  Please note that blank lines at the top and bottom are never
+included in the selection.
+
  vim:tw=78:ts=8:ft=help:norl:

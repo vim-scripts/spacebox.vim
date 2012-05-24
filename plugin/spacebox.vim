@@ -1,91 +1,113 @@
-" Select a block of indentation whitespace in Visual block mode based on
-" the indentation of the current line.  Try it with ":SpaceBox"!
+" Select a block of indentation whitespace in Visual block mode based on the
+" indentation of the current line.  Try it with ":SpaceBox"!
 "
 " Author: glts <676c7473@gmail.com>
-" Date: 2012-05-13
+" Date: 2012-05-24
 
-function! s:is_blank(line)
+let g:spacebox_skip_blank_lines = 1
+let g:spacebox_skip_blank_lines_noindent = 0
+
+function! s:IsBlank(line)
   return match(getline(a:line), '^\s*$') != -1
 endfunction
 
-function! s:top_line()
-  let l:curr = s:line
-  let l:top = l:curr
-  while l:curr > 0
-    if indent(l:curr-1) >= s:indent
-      let l:top = l:curr - 1
-    elseif !s:is_blank(l:curr-1)
-      break
-    endif
-    let l:curr = l:curr - 1
-  endwhile
-  return l:top
+function! s:CreateTemplateParams()
+  let params = {}
+  let params.expandtop = function("s:ExpandTopCondition")
+  let params.expandbottom = function("s:ExpandBottomCondition")
+  let params.skip = g:spacebox_skip_blank_lines
+  let params.width = s:indent
+  return params
 endfunction
 
-function! s:bottom_line()
-  let l:curr = s:line
-  let l:bottom = l:curr
-  let l:last = line("$")
-  while l:curr < l:last
-    if indent(l:curr+1) >= s:indent
-      let l:bottom = l:curr + 1
-    elseif !s:is_blank(l:curr+1)
-      break
-    endif
-    let l:curr = l:curr + 1
-  endwhile
-  return l:bottom
+function! s:CreateTemplateParamsNoindent()
+  let params = {}
+  let params.expandtop = function("s:ExpandTopConditionNoindent")
+  let params.expandbottom = function("s:ExpandBottomConditionNoindent")
+  let params.skip = g:spacebox_skip_blank_lines_noindent
+  let params.width = col(".")
+  return params
 endfunction
 
-function! s:top_line_noindent()
-  let l:top = s:line
-  while l:top > 0
-    if indent(l:top-1) > 0 || s:is_blank(l:top-1)
-      break
-    endif
-    let l:top = l:top - 1
-  endwhile
-  return l:top
+function! s:ExpandTopCondition(current)
+  return indent(a:current-1) >= s:indent
 endfunction
 
-function! s:bottom_line_noindent()
-  let l:bottom = s:line
-  let l:last = line("$")
-  while l:bottom < l:last
-    if indent(l:bottom+1) > 0 || s:is_blank(l:bottom+1)
-      break
-    endif
-    let l:bottom = l:bottom + 1
-  endwhile
-  return l:bottom
+function! s:ExpandBottomCondition(current)
+  return indent(a:current+1) >= s:indent
 endfunction
 
-function! s:visual_box(top, bottom, width)
-  call cursor(a:top, 1)
-  let l:linespan = a:bottom - a:top
-  if l:linespan == 0
-    exec "normal! \<C-V>" . a:width . "|"
+function! s:ExpandTopConditionNoindent(current)
+  return indent(a:current-1) ==? 0
+endfunction
+
+function! s:ExpandBottomConditionNoindent(current)
+  return indent(a:current+1) ==? 0
+endfunction
+
+function! s:CalculateTop(expand, skip)
+  let current = s:line
+  let top = s:line
+  while current > 0
+    if !s:IsBlank(current-1)
+      if a:expand(current)
+        let top = current - 1
+      else
+        break
+      endif
+    elseif !a:skip
+      break
+    endif
+    let current -= 1
+  endwhile
+  return top
+endfunction
+
+function! s:CalculateBottom(expand, skip)
+  let current = s:line
+  let bottom = s:line
+  let last = line("$")
+  while current < last
+    if !s:IsBlank(current+1)
+      if a:expand(current)
+        let bottom = current + 1
+      else
+        break
+      endif
+    elseif !a:skip
+      break
+    endif
+    let current += 1
+  endwhile
+  return bottom
+endfunction
+
+function! s:MakeSpaceBox(params)
+  let bottom = s:CalculateBottom(a:params.expandbottom, a:params.skip)
+  let top = s:CalculateTop(a:params.expandtop, a:params.skip)
+  let width = a:params.width
+
+  call cursor(top, 1)
+  let linespan = bottom - top
+  if linespan == 0
+    exec "normal! \<C-V>" . width . "|"
   else
-    exec "normal! \<C-V>" . l:linespan . "j" . a:width . "|"
+    exec "normal! \<C-V>" . linespan . "j" . width . "|"
   endif
 endfunction
 
-function! s:spacebox()
+function! s:SpaceBox()
   let s:line = line(".")
   let s:indent = indent(s:line)
-  let s:col = col(".")
 
-  if !s:is_blank(s:line)
+  if !s:IsBlank(s:line)
     if s:indent > 0
-      let l:top = s:top_line()
-      let l:bottom = s:bottom_line()
-      call s:visual_box(l:top, l:bottom, s:indent)
+      let params = s:CreateTemplateParams()
     else
-      let l:top = s:top_line_noindent()
-      let l:bottom = s:bottom_line_noindent()
-      call s:visual_box(l:top, l:bottom, s:col)
+      let params = s:CreateTemplateParamsNoindent()
     endif
+    call s:MakeSpaceBox(params)
   endif
 endfunction
 
-command! SpaceBox call s:spacebox()
+command! -nargs=0 SpaceBox call s:SpaceBox()
