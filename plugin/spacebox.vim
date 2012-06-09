@@ -2,7 +2,7 @@
 " indentation of the current line.  Try it with ":SpaceBox"!
 "
 " Author: glts <676c7473@gmail.com>
-" Date: 2012-05-24
+" Date: 2012-06-03
 
 let g:spacebox_skip_blank_lines = 1
 let g:spacebox_skip_blank_lines_noindent = 0
@@ -13,8 +13,7 @@ endfunction
 
 function! s:CreateTemplateParams()
   let params = {}
-  let params.expandtop = function("s:ExpandTopCondition")
-  let params.expandbottom = function("s:ExpandBottomCondition")
+  let params.expand = function("s:ExpandCondition")
   let params.skip = g:spacebox_skip_blank_lines
   let params.width = s:indent
   return params
@@ -22,27 +21,18 @@ endfunction
 
 function! s:CreateTemplateParamsNoindent()
   let params = {}
-  let params.expandtop = function("s:ExpandTopConditionNoindent")
-  let params.expandbottom = function("s:ExpandBottomConditionNoindent")
+  let params.expand = function("s:ExpandConditionNoindent")
   let params.skip = g:spacebox_skip_blank_lines_noindent
-  let params.width = col(".")
+  let params.width = virtcol(".")
   return params
 endfunction
 
-function! s:ExpandTopCondition(current)
-  return indent(a:current-1) >= s:indent
+function! s:ExpandCondition(line)
+  return indent(a:line) >= s:indent
 endfunction
 
-function! s:ExpandBottomCondition(current)
-  return indent(a:current+1) >= s:indent
-endfunction
-
-function! s:ExpandTopConditionNoindent(current)
-  return indent(a:current-1) ==? 0
-endfunction
-
-function! s:ExpandBottomConditionNoindent(current)
-  return indent(a:current+1) ==? 0
+function! s:ExpandConditionNoindent(line)
+  return indent(a:line) ==? 0
 endfunction
 
 function! s:CalculateTop(expand, skip)
@@ -50,7 +40,7 @@ function! s:CalculateTop(expand, skip)
   let top = s:line
   while current > 0
     if !s:IsBlank(current-1)
-      if a:expand(current)
+      if a:expand(current-1)
         let top = current - 1
       else
         break
@@ -69,7 +59,7 @@ function! s:CalculateBottom(expand, skip)
   let last = line("$")
   while current < last
     if !s:IsBlank(current+1)
-      if a:expand(current)
+      if a:expand(current+1)
         let bottom = current + 1
       else
         break
@@ -83,8 +73,8 @@ function! s:CalculateBottom(expand, skip)
 endfunction
 
 function! s:MakeSpaceBox(params)
-  let bottom = s:CalculateBottom(a:params.expandbottom, a:params.skip)
-  let top = s:CalculateTop(a:params.expandtop, a:params.skip)
+  let bottom = s:CalculateBottom(a:params.expand, a:params.skip)
+  let top = s:CalculateTop(a:params.expand, a:params.skip)
   let width = a:params.width
 
   call cursor(top, 1)
@@ -101,6 +91,7 @@ function! s:SpaceBox()
   let s:indent = indent(s:line)
 
   if !s:IsBlank(s:line)
+    normal! m`
     if s:indent > 0
       let params = s:CreateTemplateParams()
     else

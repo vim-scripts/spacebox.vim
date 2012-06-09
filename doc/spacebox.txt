@@ -55,12 +55,12 @@ Two global variables control whether or not Spacebox skips over blank lines.
 					*g:spacebox_skip_blank_lines*
     g:spacebox_skip_blank_lines ~
     Skip blank lines.
-    Default is 1.
+    Default is 1 (skip blank lines).
 
 					*g:spacebox_skip_blank_lines_noindent*
     g:spacebox_skip_blank_lines_noindent ~
     Skip blank lines when running |:SpaceBox| on an unindented line.
-    Default is 0.
+    Default is 0 (stop at blank lines).
 
 To change the default settings, set these variables to "1" or "0" in your
 |vimrc|.  Please note that blank lines at the top and bottom are never
