@@ -20,12 +20,8 @@ the middots. >
 	}
     }
 
-As the example shows, blank lines (and their indentation whitespace) are
-included in the selection by default.  On the other hand, blank lines at the
-upper and lower boundaries of the block are not included.
-
-On a line with no indentation the behaviour of the command changes:  There it
-will select adjacent unindented lines.
+On an unindented line, |:SpaceBox| selects all adjacent unindented lines.
+Finally, on a blank line it selects the indentation of adjacent blank lines.
 
 USAGE							*:SpaceBox*
 
@@ -38,9 +34,6 @@ For ease of use, you might want to put a line similar to the following in your
 |vimrc|.  Then just hit "\w" to trigger |:SpaceBox|. >
 
     nnoremap <Leader>w :SpaceBox<CR>
-
-Some uses I have found for the plugin are "\w>" and "\w<" to fix indentation,
-and "\wV" on an unindented line to select stretches of here-documents.
 
 Note that Spacebox may seem to do the wrong thing on input with less sane
 whitespace conventions, for example the Vim help files where spaces and tabs
